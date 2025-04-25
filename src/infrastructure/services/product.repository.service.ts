@@ -66,4 +66,23 @@ export class ProductRepositoryService {
       );
     });
   }
+
+  async updateProduct(id: number, updates: Partial<Product>): Promise<Product | null> {
+    const updatedProductDocument = await ProductModel.findOneAndUpdate(
+      { id },
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!updatedProductDocument) return null;
+
+    return new Product(
+      updatedProductDocument.id,
+      updatedProductDocument.name,
+      updatedProductDocument.description,
+      updatedProductDocument.quantity,
+      updatedProductDocument.imageUrl,
+      updatedProductDocument.price
+    );
+  }
 }

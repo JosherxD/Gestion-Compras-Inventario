@@ -5,20 +5,25 @@ import { Quantity } from '../../domain/models/quantity';
 
 export class OrderRepositoryService {
   async save(order: Order): Promise<Order> {
-    const orderDocument = new OrderModel({
-      id: order.id, 
-      customerId: order.customerId,
-      items: order.items,
-      createdAt: order.createdAt,
-      status: order.status,
-    });
-    const savedOrder = await orderDocument.save();
+    const updatedOrderDocument = await OrderModel.findOneAndUpdate(
+      { id: order.id },
+      {
+        $set: {
+          customerId: order.customerId,
+          items: order.items,
+          createdAt: order.createdAt,
+          status: order.status,
+        },
+      },
+      { new: true, upsert: true } // Create the document if it doesn't exist
+    );
+
     return new Order(
-      savedOrder.id, 
-      savedOrder.customerId,
-      savedOrder.items,
-      savedOrder.createdAt,
-      savedOrder.status
+      updatedOrderDocument.id,
+      updatedOrderDocument.customerId,
+      updatedOrderDocument.items,
+      updatedOrderDocument.createdAt,
+      updatedOrderDocument.status
     );
   }
 
@@ -27,7 +32,7 @@ export class OrderRepositoryService {
     if (!orderDocument) return null;
 
     const items = orderDocument.items.map(item => {
-      const priceValue = typeof item.price === 'number' ? item.price : 0;
+      const priceValue = typeof item.price === 'number' && item.price > 0 ? item.price : 1;
       const quantityValue = typeof item.quantity === 'number' ? item.quantity : 1;
       return new OrderItem(
         item.productId,

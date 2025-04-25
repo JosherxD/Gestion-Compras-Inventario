@@ -2,10 +2,14 @@ import { Router } from 'express';
 import { OrderController } from '../controller/order.controller';
 import { OrderUseCase } from '../../application/use_case/order.usecase';
 import { OrderRepositoryService } from '../services/order.repository.service';
+import { ProductUseCase } from '../../application/use_case/product.usecase';
+import { ProductRepositoryService } from '../services/product.repository.service';
 
 const router = Router();
 const orderRepository = new OrderRepositoryService();
-const orderUseCase = new OrderUseCase(orderRepository);
+const productRepository = new ProductRepositoryService();
+const productUseCase = new ProductUseCase(productRepository);
+const orderUseCase = new OrderUseCase(orderRepository, productUseCase);
 const orderController = new OrderController(orderUseCase);
 
 router.post('/ordenes', (req, res) => {

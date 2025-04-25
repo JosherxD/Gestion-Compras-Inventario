@@ -20,4 +20,16 @@ export class ProductUseCase {
     return this.productRepository.findAll();
   }
 
+  async updateProduct(productId: number, updates: Partial<Product>): Promise<Product> {
+    const product = await this.productRepository.findById(productId);
+    if (!product) {
+      throw new Error(`Product with ID ${productId} not found.`);
+    }
+
+    const updatedProduct = await this.productRepository.updateProduct(productId, updates);
+    if (!updatedProduct) {
+      throw new Error(`Failed to update product with ID ${productId}.`);
+    }
+    return updatedProduct;
+  }
 }

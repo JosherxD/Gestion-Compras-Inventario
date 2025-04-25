@@ -22,4 +22,11 @@ router.get('/productos', (req, res) => {
   });
 });
 
+router.put('/productos/:id', (req, res) => {
+  productController.update(req, res).catch(err => {
+    console.error('Error en PUT /productos/:id:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
 export default router;

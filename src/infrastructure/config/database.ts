@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { env } from '../../common/config/envs';
 import { URL } from 'url';
+import net from 'net';
 
 class DatabaseConfig {
   private static instance: DatabaseConfig;
@@ -30,6 +31,29 @@ class DatabaseConfig {
     }
   }
 
+  private async isPortActive(host: string, port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(5000); 
+
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+
+      socket.on('timeout', () => {
+        socket.destroy();
+        resolve(false);
+      });
+
+      socket.on('error', () => {
+        resolve(false);
+      });
+
+      socket.connect(port, host);
+    });
+  }
+
   public async connectToDatabase(): Promise<void> {
     try {
       const uri = env.MONGO_URI ?? 'mongodb://localhost:27017/DBCompras';
@@ -39,11 +63,39 @@ class DatabaseConfig {
       this.validateMongoPassword(password);
 
       await mongoose.connect(uri, {});
-      console.log('✅ Conexión exitosa a MongoDB');
+      console.log('✅ Conexión exitosa a MongoDB: La base de datos está disponible y accesible.');
     } catch (error) {
       console.error('❌ Error al conectar a MongoDB:', error);
       process.exit(1);
     }
+  }
+
+  public async validateDatabaseConnection(): Promise<boolean> {
+    try {
+      const uri = env.MONGO_URI ?? 'mongodb://localhost:27017/DBCompras';
+      this.validateMongoURI(uri);
+      await mongoose.connect(uri, { connectTimeoutMS: 5000 }); 
+      console.log('✅ Validación exitosa de la conexión a MongoDB');
+      await mongoose.disconnect(); 
+      return true;
+    } catch (error) {
+      console.error('❌ Error al validar la conexión a MongoDB:', error);
+      return false;
+    }
+  }
+
+  public async validatePortAndDatabaseConnection(): Promise<boolean> {
+    const uri = env.MONGO_URI ?? 'mongodb://localhost:27017/DBCompras';
+    const { hostname, port } = new URL(uri);
+
+    const isPortActive = await this.isPortActive(hostname, parseInt(port, 10));
+    if (!isPortActive) {
+      console.error(`❌ El puerto ${port} en el host ${hostname} no está activo.`);
+      return false;
+    }
+
+    console.log(`✅ El puerto ${port} en el host ${hostname} está activo.`);
+    return this.validateDatabaseConnection();
   }
 
   public static getInstance(): DatabaseConfig {

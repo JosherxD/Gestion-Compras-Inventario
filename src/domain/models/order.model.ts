@@ -10,13 +10,29 @@ export interface OrderDocument extends Document {
 }
 
 export class Order {
+  private _status: 'pendiente' | 'completado' | 'cancelado';
+
   constructor(
     public readonly id: number,
     public readonly customerId: string,
     public readonly items: OrderItem[],
     public readonly createdAt: Date,
-    public readonly status: 'pendiente' | 'completado' | 'cancelado'
-  ) {}
+    status: 'pendiente' | 'completado' | 'cancelado'
+  ) {
+    this._status = status;
+  }
+
+  set status(newStatus: 'pendiente' | 'completado' | 'cancelado') {
+    const validStatuses = ['pendiente', 'completado', 'cancelado'];
+    if (!validStatuses.includes(newStatus)) {
+      throw new Error(`Invalid status: ${newStatus}. Allowed statuses are: ${validStatuses.join(', ')}`);
+    }
+    this._status = newStatus;
+  }
+
+  get status(): 'pendiente' | 'completado' | 'cancelado' {
+    return this._status;
+  }
 }
 
 const OrderSchema: Schema = new Schema({

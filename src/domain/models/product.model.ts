@@ -30,11 +30,11 @@ export const ProductModel = mongoose.model<ProductDocument>('Product', ProductSc
 
 export class Product {
     constructor(
-      public readonly id: number,
-      public readonly name: string,
-      public readonly description: string,
-      public readonly quantity: number,
-      public readonly imageUrl: string,
-      public readonly price: number 
+      public id: number,
+      public name: string,
+      public description: string,
+      public quantity: number,
+      public imageUrl: string,
+      public price: number 
     ) {}
   }
