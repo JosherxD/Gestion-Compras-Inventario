@@ -1,0 +1,67 @@
+import { Request, Response } from 'express';
+import { OrderUseCase } from '../../application/use_case/order.usecase';
+
+export class OrderController {
+  constructor(private readonly orderUseCase: OrderUseCase) {}
+
+  async create(req: Request, res: Response) {
+    console.log('POST /ordenes llamado con datos:', req.body);
+    try {
+      const { customerId, items } = req.body;
+      const order = await this.orderUseCase.createOrder(customerId, items);
+      res.status(201).json(order);
+    } catch (error) {
+      console.error('Error al crear la orden:', error);
+      res.status(500).json({ error: 'Error al crear la orden' });
+    }
+  }
+
+  async getAll(req: Request, res: Response) {
+    try {
+      const orders = await this.orderUseCase.getAllOrders();
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error('Error al obtener las órdenes:', error);
+      res.status(500).json({ error: 'Error al obtener las órdenes' });
+    }
+  }
+
+  async getById(req: Request, res: Response) {
+    try {
+      const orderId = Number(req.params.id);
+      const order = await this.orderUseCase.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      return res.status(200).json(order);
+    } catch (error) {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async update(req: Request, res: Response) {
+    try {
+      const orderId = Number(req.params.id);
+      const updatedOrder = await this.orderUseCase.updateOrder(orderId, req.body);
+      if (!updatedOrder) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      return res.status(200).json(updatedOrder);
+    } catch (error) {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      const orderId = Number(req.params.id);
+      const success = await this.orderUseCase.deleteOrder(orderId);
+      if (!success) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      return res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+}
