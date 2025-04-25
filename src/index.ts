@@ -21,7 +21,8 @@ app.use('/api', orderRoutes);
 
 app.use('/api', productRoutes);
 
-app.get('/ping', (req, res) => {
+app.get('/ping', (_req, res) => {
+  console.log('Solicitud recibida en /ping');
   res.send('pong');
 });
 

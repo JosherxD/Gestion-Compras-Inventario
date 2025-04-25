@@ -26,7 +26,7 @@ export class OrderController {
     }
   }
 
-  async getById(req: Request, res: Response) {
+  async getOrderById(req: Request, res: Response): Promise<Response> {
     try {
       const orderId = Number(req.params.id);
       const order = await this.orderUseCase.getOrderById(orderId);
@@ -35,11 +35,12 @@ export class OrderController {
       }
       return res.status(200).json(order);
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error('Error fetching order by ID:', error);
+      return res.status(500).json({ message: 'An error occurred while fetching the order.' });
     }
   }
 
-  async update(req: Request, res: Response) {
+  async updateOrder(req: Request, res: Response): Promise<Response> {
     try {
       const orderId = Number(req.params.id);
       const updatedOrder = await this.orderUseCase.updateOrder(orderId, req.body);
@@ -48,11 +49,12 @@ export class OrderController {
       }
       return res.status(200).json(updatedOrder);
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error('Error updating order:', error);
+      return res.status(500).json({ message: 'An error occurred while updating the order.' });
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async deleteOrder(req: Request, res: Response): Promise<Response> {
     try {
       const orderId = Number(req.params.id);
       const success = await this.orderUseCase.deleteOrder(orderId);
@@ -61,7 +63,8 @@ export class OrderController {
       }
       return res.status(200).json({ message: 'Order deleted successfully' });
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error('Error deleting order:', error);
+      return res.status(500).json({ message: 'An error occurred while deleting the order.' });
     }
   }
 }

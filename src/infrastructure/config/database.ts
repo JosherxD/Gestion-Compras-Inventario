@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { env } from '../../common/config/envs';
+import { URL } from 'url';
 
 class DatabaseConfig {
   private static instance: DatabaseConfig;
@@ -8,9 +9,35 @@ class DatabaseConfig {
 
   }
 
+  private validateMongoURI(uri: string): void {
+    try {
+      const parsedUrl = new URL(uri);
+      if (parsedUrl.protocol !== 'mongodb:') {
+        throw new Error('La URI de MongoDB debe comenzar con "mongodb://"');
+      }
+      if (!parsedUrl.hostname) {
+        throw new Error('La URI de MongoDB debe contener un host válido');
+      }
+    } catch (error) {
+      const parsedError = error as Error;
+      throw new Error(`URI de MongoDB inválida: ${parsedError.message}`);
+    }
+  }
+
+  private validateMongoPassword(password: string): void {
+    if (!password || password.trim() === '') {
+      throw new Error('La contraseña de MongoDB no puede estar vacía');
+    }
+  }
+
   public async connectToDatabase(): Promise<void> {
     try {
       const uri = env.MONGO_URI ?? 'mongodb://localhost:27017/DBCompras';
+      const password = env.DB_PASSWORD;
+
+      this.validateMongoURI(uri);
+      this.validateMongoPassword(password);
+
       await mongoose.connect(uri, {});
       console.log('✅ Conexión exitosa a MongoDB');
     } catch (error) {
