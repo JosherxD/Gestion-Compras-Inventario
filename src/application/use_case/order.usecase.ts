@@ -1,6 +1,6 @@
 import { OrderRepositoryInterface } from '../../domain/interfaces/order.repository.interface';
 import { Order  } from '../../domain/models/order.model';
-import { OrderItem } from '../../domain/models/order.item.model';
+import { PurchaseOrder } from '../../domain/models/order.item.model';
 import { Price } from '../../domain/models/price';
 import { Quantity } from '../../domain/models/quantity';
 import { ProductUseCase } from './product.usecase';
@@ -31,18 +31,29 @@ export class OrderUseCase {
         throw new Error(`Product with ID ${item.productId} does not exist.`);
       }
 
-      const quantityValue = typeof item.quantity === 'object' && item.quantity !== null && 'value' in item.quantity ? (item.quantity as Quantity).value : (typeof item.quantity === 'number' ? item.quantity : 0);
+      const quantityValue = (() => {
+        if (typeof item.quantity === 'object' && item.quantity !== null && 'value' in item.quantity) {
+          return (item.quantity as Quantity).value;
+        }
+        return typeof item.quantity === 'number' ? item.quantity : 0;
+      })();
       if (product.quantity < quantityValue) {
-        throw new Error(`Insufficient stock for product ID ${item.productId}. Available: ${product.quantity}, Requested: ${item.quantity}`);
+        throw new Error(`Insufficient stock for product ID ${item.productId}. Available: ${product.quantity}, Requested: ${quantityValue}`);
       }
 
-      product.quantity -= item.quantity;
+      product.quantity -= quantityValue;
       await this.productUseCase.updateProduct(product.id, { quantity: product.quantity });
     }
 
     const orderItems = items.map(item => {
-      const quantityValue = Math.floor(item.quantity); // Ensure quantity is an integer
-      return new OrderItem(item.productId, new Price(item.price), new Quantity(quantityValue));
+      const quantityValue = (() => {
+        if (typeof item.quantity === 'object' && item.quantity !== null && 'value' in item.quantity) {
+          return (item.quantity as Quantity).value;
+        }
+        return typeof item.quantity === 'number' ? item.quantity : 0;
+      })();
+
+      return new PurchaseOrder(item.productId, new Price(item.price), new Quantity(quantityValue));
     });
 
     const order = new Order(
@@ -55,9 +66,9 @@ export class OrderUseCase {
 
     const savedOrder = await this.orderRepository.save(order);
 
-    // Reconstruct OrderItem instances to ensure methods like calculateSubtotal are available
+    // Reconstruct PurchaseOrder instances to ensure methods like calculateSubtotal are available
     const reconstructedItems = savedOrder.items.map(item =>
-      new OrderItem(item.productId, new Price(item.price.value), new Quantity(item.quantity.value))
+      new PurchaseOrder(item.productId, new Price(item.price.value), new Quantity(item.quantity.value))
     );
 
     return new Order(
@@ -74,11 +85,51 @@ export class OrderUseCase {
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return this.orderRepository.findAll();
+    const orders = await this.orderRepository.findAll();
+    return orders.map(order => {
+      const reconstructedItems = order.items.map(item => {
+        const subtotal = item.price.value * item.quantity.value;
+        return new PurchaseOrder(
+          item.productId,
+          new Price(item.price.value),
+          new Quantity(item.quantity.value),
+          subtotal
+        );
+      });
+
+      return new Order(
+        order.id,
+        order.customerId,
+        reconstructedItems,
+        order.createdAt,
+        order.status
+      );
+    });
   }
 
   async getOrderById(id: number): Promise<Order | null> {
-    return this.orderRepository.findById(id);
+    const order = await this.orderRepository.findById(id);
+    if (!order) {
+      return null;
+    }
+
+    const reconstructedItems = order.items.map(item => {
+      const subtotal = item.price.value * item.quantity.value;
+      return new PurchaseOrder(
+        item.productId,
+        new Price(item.price.value),
+        new Quantity(item.quantity.value),
+        subtotal
+      );
+    });
+
+    return new Order(
+      order.id,
+      order.customerId,
+      reconstructedItems,
+      order.createdAt,
+      order.status
+    );
   }
 
   async updateOrder(id: number, updatedData: Partial<Order>): Promise<Order | null> {
@@ -97,14 +148,19 @@ export class OrderUseCase {
           throw new Error(`Product with ID ${item.productId} does not exist.`);
         }
 
-        const quantityValue = typeof item.quantity === 'object' && item.quantity !== null && 'value' in item.quantity ? (item.quantity as Quantity).value : (typeof item.quantity === 'number' ? item.quantity : 0);
+        const quantityValue = (() => {
+          if (typeof item.quantity === 'object' && item.quantity !== null && 'value' in item.quantity) {
+            return (item.quantity as Quantity).value;
+          }
+          return typeof item.quantity === 'number' ? item.quantity : 0;
+        })();
         if (product.quantity < quantityValue) {
-          throw new Error(`Insufficient stock for product ID ${item.productId}. Available: ${product.quantity}, Requested: ${item.quantity}`);
+          throw new Error(`Insufficient stock for product ID ${item.productId}. Available: ${product.quantity}, Requested: ${quantityValue}`);
         }
 
         const priceValue = item.price instanceof Price ? item.price.getValue() : item.price;
 
-        return new OrderItem(item.productId, new Price(priceValue), new Quantity(quantityValue));
+        return new PurchaseOrder(item.productId, new Price(priceValue), new Quantity(quantityValue));
       }));
 
       updatedData = { ...updatedData, items: updatedItems };
@@ -128,5 +184,21 @@ export class OrderUseCase {
     }
 
     return this.orderRepository.delete(id);
+  }
+
+  async updateOrderStatusToCompleted(orderId: number): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      throw new Error(`Order with ID ${orderId} not found.`);
+    }
+
+    if (order.status !== 'completado') {
+      // Update the order status to 'completado'
+      order.status = 'completado';
+      await this.orderRepository.save(order);
+    }
+
+    // Save the order to PurchaseOrders in the database
+    await this.orderRepository.saveToPurchaseOrders(order);
   }
 }

@@ -29,4 +29,11 @@ router.put('/productos/:id', (req, res) => {
   });
 });
 
+router.delete('/productos/:id', (req, res) => {
+  productController.delete(req, res).catch(err => {
+    console.error('Error en DELETE /productos/:id:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
 export default router;

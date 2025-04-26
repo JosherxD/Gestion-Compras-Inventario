@@ -1,37 +1,55 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { OrderItem } from './order.item.model';
+import { PurchaseOrder } from './order.item.model';
+
+// Define a type alias for order status
+type OrderStatus = 'pendiente' | 'completado' | 'cancelado';
 
 export interface OrderDocument extends Document {
   id: number;
   customerId: string;
-  items: OrderItem[];
+  items: PurchaseOrder[];
   createdAt: Date;
-  status: 'pendiente' | 'completado' | 'cancelado';
+  status: OrderStatus;
 }
 
 export class Order {
-  private _status: 'pendiente' | 'completado' | 'cancelado';
+  private _status: OrderStatus;
 
   constructor(
     public readonly id: number,
     public readonly customerId: string,
-    public readonly items: OrderItem[],
+    public readonly items: PurchaseOrder[],
     public readonly createdAt: Date,
-    status: 'pendiente' | 'completado' | 'cancelado'
+    status: OrderStatus
   ) {
     this._status = status;
   }
 
-  set status(newStatus: 'pendiente' | 'completado' | 'cancelado') {
-    const validStatuses = ['pendiente', 'completado', 'cancelado'];
+  set status(newStatus: OrderStatus) {
+    const validStatuses: OrderStatus[] = ['pendiente', 'completado', 'cancelado'];
     if (!validStatuses.includes(newStatus)) {
       throw new Error(`Invalid status: ${newStatus}. Allowed statuses are: ${validStatuses.join(', ')}`);
     }
     this._status = newStatus;
   }
 
-  get status(): 'pendiente' | 'completado' | 'cancelado' {
+  get status(): OrderStatus {
     return this._status;
+  }
+
+  get total(): number {
+    return this.items.reduce((sum, item) => sum + item.price.value * item.quantity.value, 0);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      customerId: this.customerId,
+      items: this.items,
+      createdAt: this.createdAt,
+      status: this.status,
+      total: this.total
+    };
   }
 }
 

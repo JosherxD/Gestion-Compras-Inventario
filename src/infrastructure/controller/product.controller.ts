@@ -3,6 +3,7 @@ import { ProductUseCase } from '../../application/use_case/product.usecase';
 import { HttpStatus } from '../../common/config/statusCode';
 import { body, validationResult } from 'express-validator';
 import _ from 'lodash';
+import { ProductRepositoryService } from '../services/product.repository.service';
 
 export class ProductController {
   constructor(private readonly productUseCase: ProductUseCase) {}
@@ -92,6 +93,24 @@ export class ProductController {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: errorMessage });
+    }
+  }
+
+  async delete(req: Request, res: Response): Promise<void> {
+    const productRepository = new ProductRepositoryService();
+
+    try {
+      const { id } = req.params;
+      const deleted = await productRepository.delete(Number(id));
+
+      if (deleted) {
+        res.status(HttpStatus.OK).json({ message: 'Producto eliminado correctamente.' });
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json({ message: 'Producto no encontrado.' });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Error al eliminar el producto.', error: errorMessage });
     }
   }
 }

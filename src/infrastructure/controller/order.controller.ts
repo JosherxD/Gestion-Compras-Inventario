@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { OrderUseCase } from '../../application/use_case/order.usecase';
+import { OrderRepositoryService } from '../services/order.repository.service';
+
+const orderRepository = new OrderRepositoryService();
 
 export class OrderController {
   constructor(private readonly orderUseCase: OrderUseCase) {}
@@ -51,6 +54,7 @@ export class OrderController {
       if (!order) {
         return res.status(404).json({ message: 'Order not found' });
       }
+
       return res.status(200).json(order);
     } catch (error) {
       console.error('Error fetching order by ID:', error);
@@ -70,6 +74,10 @@ export class OrderController {
       const existingOrder = await this.orderUseCase.getOrderById(orderId);
       if (!existingOrder) {
         return res.status(404).json({ message: 'Order not found' });
+      }
+
+      if (status === 'completado') {
+        await this.orderUseCase.updateOrderStatusToCompleted(orderId);
       }
 
       const updatedOrder = await this.orderUseCase.updateOrder(orderId, { status, items });
@@ -94,3 +102,19 @@ export class OrderController {
     }
   }
 }
+
+export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const deleted = await orderRepository.delete(Number(id));
+
+    if (deleted) {
+      res.status(200).json({ message: 'Orden eliminada correctamente.' });
+    } else {
+      res.status(404).json({ message: 'Orden no encontrada.' });
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    res.status(500).json({ message: 'Error al eliminar la orden.', error: errorMessage });
+  }
+};

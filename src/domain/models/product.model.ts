@@ -11,7 +11,7 @@ export interface ProductDocument extends Document {
 
 const ProductSchema: Schema = new Schema({
   id: { type: Number, required: true, unique: true }, 
-  name: { type: String, required: true, unique: true }, 
+  name: { type: String, required: true }, // Eliminada la restricción de unicidad
   description: { type: String, required: true }, 
   quantity: { type: Number, required: true, min: 0 }, 
   imageUrl: { type: String }, 
