@@ -1,45 +1,121 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import '../styles/styles.css';
 import { AppContext } from '../context/AppContext';
 import { fetchProducts } from '../services/api';
-import { FaBox, FaShoppingCart } from 'react-icons/fa';
-import '../styles/styles.css';
 
-function Home() {
+function RegistrarOrdenDeCompra() {
+  const { products, setProducts } = useContext(AppContext);
+  const [searchResult, setSearchResult] = useState(null);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const productsData = await fetchProducts();
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error al cargar los productos:', error);
+      }
+    };
+
+    loadProducts();
+  }, [setProducts]);
+
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <h1>Bienvenido a la Gestión de Compras e Inventario</h1>
-        <p>Seleccione una opción para continuar:</p>
+    <div className="page-container">
+      <header className="page-header">
+        <h1>Lista de Productos</h1>
       </header>
 
-      <main className="home-main">
-        <section className="banner">
-          <div className="banner-item">
-            <button className="banner-button">
-              <Link to="/registrar-producto" className="banner-link">
-                <FaBox className="banner-icon" /> Registrar Producto
-              </Link>
-            </button>
-          </div>
-          <div className="banner-item">
-            <button className="banner-button">
-              <Link to="/registrar-orden" className="banner-link">
-                <FaShoppingCart className="banner-icon" /> Generar Orden de Compra
-              </Link>
-            </button>
-          </div>
-        </section>
-      </main>
+      <div className="product-selector">
+        <label htmlFor="product-select">Seleccionar Producto por ID:</label>
+        <select
+          id="product-select"
+          onChange={(e) => {
+            const selectedProduct = products.find(
+              (product) => product.id === parseInt(e.target.value, 10)
+            );
+            setSearchResult(selectedProduct || null);
+          }}
+        >
+          <option value="">-- Seleccione un Producto --</option>
+          {products.map((product) => (
+            <option key={product.id} value={product.id}>
+              {product.id} - {product.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <footer className="home-footer">
-        <p>© 2025 Gestión de Compras e Inventario. Todos los derechos reservados.</p>
-      </footer>
+      {searchResult ? (
+        <section className="product-details">
+          <h2>Detalles del Producto</h2>
+          <table className="product-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Imagen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{searchResult.id}</td>
+                <td>{searchResult.name}</td>
+                <td>{searchResult.description}</td>
+                <td>{searchResult.quantity}</td>
+                <td>{searchResult.price}</td>
+                <td>
+                  {searchResult.imageUrl ? (
+                    <img src={searchResult.imageUrl} alt={searchResult.name} />
+                  ) : (
+                    'No disponible'
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      ) : (
+        <section className="product-section">
+          <h2>Todos los Productos</h2>
+          <table className="product-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Imagen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.name}</td>
+                  <td>{product.description}</td>
+                  <td>{product.quantity}</td>
+                  <td>{product.price}</td>
+                  <td>
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} />
+                    ) : (
+                      'No disponible'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
     </div>
   );
 }
-
-export default Home;
 
 function OrderForm() {
   const { products, setProducts } = useContext(AppContext);
@@ -150,5 +226,6 @@ function OrderForm() {
   );
 }
 
+export default RegistrarOrdenDeCompra;
 export { OrderForm };
 

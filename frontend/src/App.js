@@ -1,30 +1,22 @@
 import React from 'react'
-import styled from 'styled-components'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import RegistrarOrdenDeCompra from './views/RegistrarOrdenDeCompra';
 import Home from './views/Home';
+import RegistrarProducto from './views/RegistrarProducto';
+import { AppProvider } from './context/AppContext';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+    <AppProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<RegistrarOrdenDeCompra />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/registrar-producto" element={<RegistrarProducto />} />
+        </Routes>
+      </Router>
+    </AppProvider>
   );
 }
 
 export default App
-
-const AppContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  height: 100vh;
-  background: #1d1f27;
-`
-
-const Intro = styled.p`
-  font-size: 2.5vw;
-  color: #ffff;
-`

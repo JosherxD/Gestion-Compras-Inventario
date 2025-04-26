@@ -22,9 +22,23 @@ router.get('/productos', (req, res) => {
   });
 });
 
+router.get('/products', (req, res) => {
+  productController.getAll(req, res).catch(err => {
+    console.error('Error en GET /products:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
 router.get('/productos/mas-vendidos', (req, res) => {
   productController.getTopProducts(req, res).catch(err => {
     console.error('Error en GET /productos/mas-vendidos:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
+router.get('/productos/:id', (req, res) => {
+  productController.getById(req, res).catch(err => {
+    console.error('Error en GET /productos/:id:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   });
 });
@@ -41,6 +55,10 @@ router.delete('/productos/:id', (req, res) => {
     console.error('Error en DELETE /productos/:id:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   });
+});
+
+router.get('/test-connection', (req, res) => {
+  res.json({ message: 'Conexión exitosa' });
 });
 
 export default router;

@@ -6,4 +6,5 @@ export interface ProductRepositoryInterface {
   findAll(): Promise<Product[]>;
   findById(productId: number): Promise<Product | null>;
   updateProduct(productId: number, updates: Partial<Product>): Promise<Product | null>;
+  findByName(name: string): Promise<Product[]>;
 }

@@ -21,7 +21,7 @@ export class ProductUseCase {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return this.productRepository.findAll();
+    return await this.productRepository.findAll();
   }
 
   async updateProduct(productId: number, updates: Partial<Product>): Promise<Product> {
@@ -35,5 +35,16 @@ export class ProductUseCase {
       throw new Error(`Failed to update product with ID ${productId}.`);
     }
     return updatedProduct;
+  }
+
+  async searchProducts(filters: { id?: string; name?: string }) {
+    const { id, name } = filters;
+    if (id) {
+      return await this.productRepository.findById(Number(id));
+    }
+    if (name) {
+      return await this.productRepository.findByName(name);
+    }
+    return [];
   }
 }

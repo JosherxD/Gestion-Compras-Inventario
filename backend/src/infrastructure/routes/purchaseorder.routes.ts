@@ -28,18 +28,18 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   });
 
 
-router.get('/most-sold-product/:orderId', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { orderId } = req.params;
-    const mostSoldProduct = await purchaseOrderRepository.getMostSoldProductByOrderId(orderId);
-    if (!mostSoldProduct) {
-      return res.status(404).json({ error: 'No sales data available for the specified orderId' });
-    }
-    res.json(mostSoldProduct);
-  } catch (error) {
-    next(error);
-  }
-});
+// router.get('/most-sold-product/:orderId', async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { orderId } = req.params;
+//     const mostSoldProduct = await purchaseOrderRepository.getMostSoldProductByOrderId(orderId);
+//     if (!mostSoldProduct) {
+//       return res.status(404).json({ error: 'No sales data available for the specified orderId' });
+//     }
+//     res.json(mostSoldProduct);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 
 // router.get('/top-3-sold-products', async (req: Request, res: Response, next: NextFunction) => {

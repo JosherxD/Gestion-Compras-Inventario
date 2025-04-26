@@ -1,5 +1,6 @@
 import { ProductModel, Product } from '../../domain/models/product.model';
 import { PurchaseOrderModel } from '../../domain/models/order.item.model';
+import mongoose from 'mongoose';
 
 export class ProductRepositoryService {
   async save(product: Product): Promise<Product> {
@@ -23,15 +24,33 @@ export class ProductRepositoryService {
   }
 
   async findById(id: number): Promise<Product | null> {
-    const productDocument = await ProductModel.findOne({ id });
-    if (!productDocument) return null;
+    const query = { id };
+    const result = await mongoose.connection.collection('products').findOne(query);
+    if (!result) return null;
+
     return new Product(
-      productDocument.id,
-      productDocument.name,
-      productDocument.description,
-      productDocument.quantity,
-      productDocument.imageUrl,
-      productDocument.price
+      result.id,
+      result.name,
+      result.description,
+      result.quantity,
+      result.imageUrl,
+      result.price
+    );
+  }
+
+  async findByName(name: string): Promise<Product[]> {
+    const query = { name: { $regex: name, $options: 'i' } };
+    const results = await mongoose.connection.collection('products').find(query).toArray();
+
+    return results.map((result) =>
+      new Product(
+        result.id,
+        result.name,
+        result.description,
+        result.quantity,
+        result.imageUrl,
+        result.price
+      )
     );
   }
 
