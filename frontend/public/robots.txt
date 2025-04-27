@@ -1,3 +1,10 @@
 # https://www.robotstxt.org/robotstxt.html
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
+>>>>>>> master
 User-agent: *
 Disallow:

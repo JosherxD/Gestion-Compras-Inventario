@@ -22,6 +22,19 @@ router.get('/productos', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+router.get('/products', (req, res) => {
+  productController.getAll(req, res).catch(err => {
+    console.error('Error en GET /products:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
+>>>>>>> develop
+>>>>>>> master
 router.get('/productos/mas-vendidos', (req, res) => {
   productController.getTopProducts(req, res).catch(err => {
     console.error('Error en GET /productos/mas-vendidos:', err);
@@ -29,6 +42,19 @@ router.get('/productos/mas-vendidos', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+router.get('/productos/:id', (req, res) => {
+  productController.getById(req, res).catch(err => {
+    console.error('Error en GET /productos/:id:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
+});
+
+>>>>>>> develop
+>>>>>>> master
 router.put('/productos/:id', (req, res) => {
   productController.update(req, res).catch(err => {
     console.error('Error en PUT /productos/:id:', err);
@@ -43,4 +69,14 @@ router.delete('/productos/:id', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+router.get('/test-connection', (req, res) => {
+  res.json({ message: 'Conexión exitosa' });
+});
+
+>>>>>>> develop
+>>>>>>> master
 export default router;

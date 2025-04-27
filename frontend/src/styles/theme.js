@@ -11,4 +11,11 @@ const theme = createTheme({
   },
 });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
+>>>>>>> master
 export default theme;

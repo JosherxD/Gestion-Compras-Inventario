@@ -1,4 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+import cors from 'cors';
+>>>>>>> develop
+>>>>>>> master
 import orderRoutes from './infrastructure/routes/order.routes';
 import productRoutes from './infrastructure/routes/product.routes';
 import purchaseOrderRoutes from './infrastructure/routes/purchaseorder.routes';
@@ -10,6 +17,17 @@ const PORT = env.PORT;
 
 app.use(express.json());
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+app.use(cors({
+  origin: 'http://localhost:3002',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+}));
+>>>>>>> develop
+>>>>>>> master
 
 db.connectToDatabase().then(() => {
   console.log('✅ Conexión exitosa a MongoDB');
