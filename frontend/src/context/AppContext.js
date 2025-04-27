@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { fetchProducts, fetchOrders } from '../services/api';
 
 export const AppContext = createContext();
@@ -22,8 +22,10 @@ export const AppProvider = ({ children }) => {
     loadInitialData();
   }, []);
 
+  const contextValue = useMemo(() => ({ products, orders, setProducts, setOrders }), [products, orders]);
+
   return (
-    <AppContext.Provider value={{ products, orders, setProducts, setOrders }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

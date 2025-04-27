@@ -7,24 +7,36 @@ import '../styles/styles.css';
 
 function Home() {
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <h1>Bienvenido a la Gestión de Compras e Inventario</h1>
+    <div className="home-container" style={{
+      background: 'linear-gradient(to right, #4facfe, #00f2fe)',
+      minHeight: '80vh', // Adjusted height to not cover the entire page
+      width: '80%', // Added width to center the container
+      margin: 'auto', // Center the container horizontally
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '20px',
+      borderRadius: '10px', // Added border radius for a rounded look
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' // Added shadow for better visual separation
+    }}>
+      <header className="home-header" style={{ textAlign: 'center', color: '#fff' }}>
+        <h1 style={{ fontSize: '3rem', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', color: '#000' }}>Bienvenido a la Gestión de Compras e Inventario</h1>
         <p>Seleccione una opción para continuar:</p>
       </header>
 
-      <main className="home-main">
-        <section className="banner">
+      <main className="home-main" style={{ marginTop: '20px' }}>
+        <section className="banner" style={{ display: 'flex', gap: '20px' }}>
           <div className="banner-item">
-            <button className="banner-button">
-              <Link to="/registrar-producto" className="banner-link">
+            <button className="banner-button" style={{ padding: '10px 20px', borderRadius: '5px', background: '#fff', border: 'none', cursor: 'pointer' }}>
+              <Link to="/registrar-producto" className="banner-link" style={{ textDecoration: 'none', color: '#4facfe', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <FaBox className="banner-icon" /> Registrar Producto
               </Link>
             </button>
           </div>
           <div className="banner-item">
-            <button className="banner-button">
-              <Link to="/registrar-orden" className="banner-link">
+            <button className="banner-button" style={{ padding: '10px 20px', borderRadius: '5px', background: '#fff', border: 'none', cursor: 'pointer' }}>
+              <Link to="/registrar-orden" className="banner-link" style={{ textDecoration: 'none', color: '#4facfe', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <FaShoppingCart className="banner-icon" /> Generar Orden de Compra
               </Link>
             </button>
@@ -32,7 +44,7 @@ function Home() {
         </section>
       </main>
 
-      <footer className="home-footer">
+      <footer className="home-footer" style={{ marginTop: '20px', color: '#fff', textAlign: 'center' }}>
         <p>© 2025 Gestión de Compras e Inventario. Todos los derechos reservados.</p>
       </footer>
     </div>

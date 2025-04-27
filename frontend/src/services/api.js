@@ -2,7 +2,7 @@ const API_BASE_URL = 'http://localhost:3000/api';
 
 export const fetchProducts = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/products`);
+    const response = await fetch('http://localhost:3000/api/productos');
     console.log('Estado de la respuesta:', response.status);
     console.log('Encabezados de la respuesta:', response.headers);
     if (!response.ok) {
@@ -31,17 +31,52 @@ export const fetchOrders = async () => {
 };
 
 export const createOrder = async (orderData) => {
-  const response = await fetch(`${API_BASE_URL}/ordenes`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(orderData),
-  });
-  if (!response.ok) {
-    throw new Error('Error al crear la orden');
+  try {
+    // Validate and preprocess orderData
+    if (!orderData.customerId) {
+      throw new Error('El campo customerId es obligatorio.');
+    }
+
+    if (!Array.isArray(orderData.items) || orderData.items.length === 0) {
+      throw new Error('La orden debe contener al menos un producto.');
+    }
+
+    // Ensure all items have valid productId, quantity, and price
+    orderData.items = orderData.items.map((item) => {
+      if (!item.productId) {
+        throw new Error('Cada producto debe tener un productId válido.');
+      }
+      if (!item.quantity || item.quantity <= 0) {
+        throw new Error('Cada producto debe tener una cantidad válida.');
+      }
+      if (!item.price || item.price < 0) {
+        throw new Error('Cada producto debe tener un precio válido.');
+      }
+      return item;
+    });
+
+    // Calculate total if not provided
+    if (!orderData.total || orderData.total <= 0) {
+      orderData.total = orderData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    }
+
+    const response = await fetch('http://localhost:3000/api/ordenes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear la orden de compra');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error en createOrder:', error);
+    throw error;
   }
-  return response.json();
 };
 
 export const updateProduct = async (id, productData) => {
@@ -85,7 +120,7 @@ export const testConnection = async () => {
 };
 
 export async function createProduct(productData) {
-  const response = await fetch(`${API_BASE_URL}/productos`, {
+  const response = await fetch('http://localhost:3000/api/productos', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -99,3 +134,8 @@ export async function createProduct(productData) {
 
   return await response.json();
 }
+
+// Utility function to format numbers with thousand separators
+export const formatNumberWithThousandSeparators = (number) => {
+  return number.toLocaleString('es-ES');
+};

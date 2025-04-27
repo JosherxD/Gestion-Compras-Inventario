@@ -5,4 +5,5 @@ export interface OrderRepositoryInterface {
   findById(id: number): Promise<Order | null>;
   findAll(): Promise<Order[]>;
   delete(id: number): Promise<boolean>;
+  getNextOrderId(): Promise<number>;
 }
