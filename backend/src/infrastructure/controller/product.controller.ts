@@ -4,6 +4,10 @@ import { HttpStatus } from '../../common/config/statusCode';
 import { body, validationResult } from 'express-validator';
 import _ from 'lodash';
 import { ProductRepositoryService } from '../services/product.repository.service';
+<<<<<<< HEAD
+=======
+import { ParsedQs } from 'qs';
+>>>>>>> develop
 
 export class ProductController {
   constructor(private readonly productUseCase: ProductUseCase) {}
@@ -113,4 +117,39 @@ export class ProductController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Error al eliminar el producto.', error: errorMessage });
     }
   }
+<<<<<<< HEAD
+=======
+
+  async searchProducts(req: Request, res: Response) {
+    try {
+      const id = typeof req.query.id === 'string' ? req.query.id : undefined;
+      const name = typeof req.query.name === 'string' ? req.query.name : undefined;
+
+      const products = await this.productUseCase.searchProducts({ id, name });
+      res.status(HttpStatus.OK).json(products);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: errorMessage });
+    }
+  }
+
+  async getById(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'El ID proporcionado no es válido.' });
+      }
+
+      const product = await this.productUseCase.searchProducts({ id: id.toString() });
+      if (!product) {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: 'Producto no encontrado.' });
+      }
+
+      res.status(HttpStatus.OK).json(product);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: errorMessage });
+    }
+  }
+>>>>>>> develop
 }

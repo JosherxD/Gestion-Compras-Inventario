@@ -92,4 +92,12 @@ export class OrderRepositoryService {
     const result = await OrderModel.findOneAndDelete({ id }); 
     return result !== null;
   }
+<<<<<<< HEAD
+=======
+
+  async getNextOrderId(): Promise<number> {
+    const lastOrder = await OrderModel.findOne().sort({ id: -1 }).lean();
+    return lastOrder ? lastOrder.id + 1 : 1;
+  }
+>>>>>>> develop
 }

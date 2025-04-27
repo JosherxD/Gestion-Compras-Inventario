@@ -1,5 +1,9 @@
 import { ProductModel, Product } from '../../domain/models/product.model';
 import { PurchaseOrderModel } from '../../domain/models/order.item.model';
+<<<<<<< HEAD
+=======
+import mongoose from 'mongoose';
+>>>>>>> develop
 
 export class ProductRepositoryService {
   async save(product: Product): Promise<Product> {
@@ -23,6 +27,7 @@ export class ProductRepositoryService {
   }
 
   async findById(id: number): Promise<Product | null> {
+<<<<<<< HEAD
     const productDocument = await ProductModel.findOne({ id });
     if (!productDocument) return null;
     return new Product(
@@ -32,6 +37,35 @@ export class ProductRepositoryService {
       productDocument.quantity,
       productDocument.imageUrl,
       productDocument.price
+=======
+    const query = { id };
+    const result = await mongoose.connection.collection('products').findOne(query);
+    if (!result) return null;
+
+    return new Product(
+      result.id,
+      result.name,
+      result.description,
+      result.quantity,
+      result.imageUrl,
+      result.price
+    );
+  }
+
+  async findByName(name: string): Promise<Product[]> {
+    const query = { name: { $regex: name, $options: 'i' } };
+    const results = await mongoose.connection.collection('products').find(query).toArray();
+
+    return results.map((result) =>
+      new Product(
+        result.id,
+        result.name,
+        result.description,
+        result.quantity,
+        result.imageUrl,
+        result.price
+      )
+>>>>>>> develop
     );
   }
 

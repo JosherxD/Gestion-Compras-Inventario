@@ -51,8 +51,15 @@ export class OrderUseCase {
       );
     }));
 
+<<<<<<< HEAD
     const order = new Order(
       this.generateOrderId(),
+=======
+    const nextOrderId = await this.orderRepository.getNextOrderId();
+
+    const order = new Order(
+      nextOrderId,
+>>>>>>> develop
       customerId,
       orderItems,
       new Date(),

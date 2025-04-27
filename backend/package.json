@@ -12,7 +12,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "class-validator": "^0.14.1",
+=======
+    "@types/cors": "^2.8.17",
+    "class-validator": "^0.14.1",
+    "cors": "^2.8.5",
+>>>>>>> develop
     "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "express-validator": "^7.2.1",
